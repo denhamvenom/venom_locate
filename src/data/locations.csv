@@ -1,0 +1,15 @@
+id,label,icon,buddyMin,enabled
+# buddyMin = number of OTHER people required to be with the student.
+# 0 = no requirement (Add buddy still optional). 1+ = students must pick that many buddies.
+# Mentors are exempt from buddyMin enforcement.
+pits,Pits,🔧,0,TRUE
+stands,Stands,🪑,0,TRUE
+queue,Queue,⏳,0,TRUE
+practice,Practice Field,🎯,0,TRUE
+lobby,Lobby,🚪,0,TRUE
+food,Food Court,🍔,1,TRUE
+green,The Green,🌳,2,TRUE
+hotel,Hotel,🏨,0,TRUE
+bus,Bus,🚌,0,TRUE
+offsite,Off-site,🌐,0,TRUE
+other,Other,❓,0,TRUE

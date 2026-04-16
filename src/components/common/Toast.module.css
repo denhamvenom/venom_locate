@@ -1,0 +1,33 @@
+.container {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: calc(100% - 32px);
+  max-width: 400px;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  animation: slideUp 0.2s ease-out;
+  pointer-events: auto;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.success { background-color: var(--color-success); color: #fff; }
+.error   { background-color: var(--color-error);   color: #fff; }
+.warning { background-color: var(--color-warning); color: #1A1A1A; }
+.info    { background-color: var(--color-purple);  color: #fff; }

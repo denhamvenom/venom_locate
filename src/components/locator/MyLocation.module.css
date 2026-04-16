@@ -1,0 +1,128 @@
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+}
+
+.statusCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.statusValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.statusValueRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusIcon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.statusCardSet {
+  padding: 18px 18px;
+}
+
+.changeBtn {
+  align-self: stretch;
+}
+
+.cancelBtn {
+  align-self: stretch;
+}
+
+.statusNote {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.noteLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tile {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 110px;
+  color: var(--color-text);
+  transition: transform 0.08s, border-color 0.15s;
+  position: relative;
+}
+
+.tile:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.tile:disabled {
+  opacity: 0.55;
+}
+
+.tileIcon {
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.tileLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tileCurrent {
+  border-color: var(--color-gold);
+  background: rgba(253, 208, 35, 0.08);
+}
+
+.tileCurrent .tileLabel {
+  color: var(--color-gold);
+}
+
+.tilePending {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 1rem;
+  color: var(--color-gold);
+}

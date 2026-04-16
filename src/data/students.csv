@@ -1,0 +1,55 @@
+First Name,Last Initial,Role,IsMonitor,Enabled
+# Roster — students AND mentors live in this single file.,,,,
+# Role: student | mentor,,,,
+# IsMonitor: TRUE only for mentors who can OK off-roster ('Other') buddy claims. Ignored for students.,,,,
+# Set Enabled=FALSE to hide someone temporarily.,,,,
+Raymond,A,student,FALSE,TRUE
+Ash,B,student,FALSE,TRUE
+Cayden,B,student,FALSE,TRUE
+Collin,C,student,FALSE,TRUE
+Nicholas,C,student,FALSE,TRUE
+Carson,D,student,FALSE,TRUE
+Collin,D,student,FALSE,TRUE
+Evan,D,student,FALSE,TRUE
+Jacob,D,student,FALSE,TRUE
+Jairo,D,student,FALSE,TRUE
+Dominic,E,student,FALSE,TRUE
+Kennedee,E,student,FALSE,TRUE
+Nathan,E,student,FALSE,TRUE
+Nour,E,student,FALSE,TRUE
+Sophia,E,student,FALSE,TRUE
+Boden,F,student,FALSE,TRUE
+Adam,G,student,FALSE,TRUE
+Avery,G,student,FALSE,TRUE
+Christian,G,student,FALSE,TRUE
+Abigale,H,student,FALSE,TRUE
+Mohamed,H,student,FALSE,TRUE
+Gabriel,J,student,FALSE,TRUE
+Drue,K,student,FALSE,TRUE
+Aiden,L,student,FALSE,TRUE
+Kerven,L,student,FALSE,TRUE
+Gavin,M,student,FALSE,TRUE
+Mackenzie,M,student,FALSE,TRUE
+Landon,N,student,FALSE,TRUE
+Skye,N,student,FALSE,TRUE
+Baileigh,O,student,FALSE,TRUE
+Connor,O,student,FALSE,TRUE
+Daniel,O,student,FALSE,TRUE
+Leonardo,O,student,FALSE,TRUE
+Reagan,P,student,FALSE,TRUE
+Simon,P,student,FALSE,TRUE
+Valerie,P,student,FALSE,TRUE
+Adrian,R,student,FALSE,TRUE
+Cole,R,student,FALSE,TRUE
+Emmalyn,R,student,FALSE,TRUE
+Juan,R,student,FALSE,TRUE
+Andrew,S,student,FALSE,TRUE
+Cameron,S,student,FALSE,TRUE
+Nicolas,S,student,FALSE,TRUE
+Nathan,T,student,FALSE,TRUE
+Elizabeth,W,student,FALSE,TRUE
+# --- Mentors ---,,,,
+Daniel,Eiland,mentor,TRUE,TRUE
+Miranda,Moore,mentor,TRUE,TRUE
+Brandon,Landry,mentor,TRUE,TRUE
+Danny,Thomasson,mentor,FALSE,TRUE
