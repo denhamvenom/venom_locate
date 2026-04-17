@@ -3,7 +3,7 @@ import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
 import { EVENT_CODE, STALE_MS } from '../../lib/constants'
 import { LOCATIONS } from '../../lib/locations'
-import { ROSTER } from '../../lib/roster'
+import { ROSTER, nameOf } from '../../lib/roster'
 import { relativeTime, toDate } from '../../lib/time'
 import styles from './TeamView.module.css'
 
@@ -24,6 +24,13 @@ export default function TeamView() {
     return () => clearInterval(id)
   }, [])
 
+  // Lookup of locationId per rosterId for mutual-buddy check
+  const locationByRosterId = useMemo(() => {
+    const m = new Map()
+    for (const d of docs) m.set(d.id, d)
+    return m
+  }, [docs])
+
   const grouped = useMemo(() => {
     const byLocation = {}
     const studentIdsWithDoc = new Set()
@@ -39,6 +46,36 @@ export default function TeamView() {
     const notSignedIn = ROSTER.filter(s => !studentIdsWithDoc.has(s.id))
     return { byLocation, notSignedIn }
   }, [docs])
+
+  function renderBuddies(s) {
+    const named = (s.withRosterIds || []).map(buddyId => {
+      const buddyDoc = locationByRosterId.get(buddyId)
+      const mutual = buddyDoc?.location === s.location && (buddyDoc.withRosterIds || []).includes(s.id)
+      const atDifferent = buddyDoc && buddyDoc.location !== s.location
+      let status
+      if (mutual) status = '✓'
+      else if (atDifferent) status = `✗ at ${locationLabel(buddyDoc.location)}`
+      else if (!buddyDoc) status = 'not signed in'
+      else status = 'unconfirmed'
+      return { name: nameOf(buddyId), status, mutual }
+    })
+    const otherChip = s.withOther
+      ? { name: s.withOther, status: s.otherApproved ? '✓ verified' : '⚠ needs OK', isOther: true }
+      : null
+    const all = [...named, ...(otherChip ? [otherChip] : [])]
+    if (all.length === 0) return null
+
+    return (
+      <div className={styles.rowBuddies}>
+        with {all.map((b, i) => (
+          <span key={i} className={`${styles.buddyChip} ${b.mutual ? '' : b.status?.startsWith('✗') ? styles.buddyDisputed : styles.buddyPending}`}>
+            {b.name} {b.status}
+            {i < all.length - 1 && ', '}
+          </span>
+        ))}
+      </div>
+    )
+  }
 
   const totalCheckedIn = docs.length
 
@@ -64,13 +101,18 @@ export default function TeamView() {
               {students.map((s) => {
                 const ts = toDate(s.timestamp)
                 const stale = ts && Date.now() - ts.getTime() > STALE_MS
+                const isMentor = s.role === 'mentor'
                 return (
                   <li key={s.id} className={`${styles.row} ${stale ? styles.rowStale : ''}`}>
-                    <div className={styles.rowName}>{s.studentName}</div>
+                    <div className={styles.rowName}>
+                      {s.studentName}
+                      {isMentor && <span className={styles.rowMentorTag}>Mentor</span>}
+                    </div>
                     <div className={styles.rowMeta}>
                       <span className={styles.rowTime}>{ts ? relativeTime(ts) : 'unknown'}</span>
                       {s.note && <span className={styles.rowNote}>"{s.note}"</span>}
                     </div>
+                    {renderBuddies(s)}
                   </li>
                 )
               })}
@@ -89,7 +131,10 @@ export default function TeamView() {
           <ul className={styles.list}>
             {grouped.notSignedIn.map((s) => (
               <li key={s.id} className={`${styles.row} ${styles.rowMuted}`}>
-                <div className={styles.rowName}>{s.display}</div>
+                <div className={styles.rowName}>
+                  {s.display}
+                  {s.role === 'mentor' && <span className={styles.rowMentorTag}>Mentor</span>}
+                </div>
               </li>
             ))}
           </ul>

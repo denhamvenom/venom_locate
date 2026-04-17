@@ -126,3 +126,87 @@
   font-size: 1rem;
   color: var(--color-gold);
 }
+
+.tileBuddy {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-warning);
+  background: rgba(255, 170, 0, 0.15);
+  padding: 2px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.statusBuddies {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Claim banners ── */
+
+.claimBanners {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.claimCard {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-purple);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.claimText {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.claimGroup {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.claimActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.claimConfirm {
+  padding: 8px 16px;
+  background: var(--color-gold);
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+.claimAdd {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--color-gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-gold);
+}
+
+.claimDismiss {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-border);
+}

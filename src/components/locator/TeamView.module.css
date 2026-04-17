@@ -135,6 +135,39 @@
   color: var(--color-text-muted);
 }
 
+.rowBuddies {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.buddyChip {
+  white-space: nowrap;
+}
+
+.buddyDisputed {
+  color: var(--color-error);
+}
+
+.buddyPending {
+  color: var(--color-warning);
+}
+
+.rowMentorTag {
+  margin-left: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(253, 208, 35, 0.15);
+  border: 1px solid rgba(253, 208, 35, 0.4);
+  vertical-align: middle;
+}
+
 .empty {
   text-align: center;
   padding: 40px 20px;
