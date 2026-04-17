@@ -3,21 +3,13 @@ import { db } from './firebase'
 import { EVENT_CODE } from './constants'
 import { getDeviceId } from './deviceId'
 
-export async function writeLocation({
-  studentId,
-  studentName,
-  role,
-  locationId,
-  note,
-  withRosterIds,
-  withOther,
-}) {
+export async function writeLocation({ studentId, studentName, role, locationId, note, groupId }) {
   if (!studentId || !locationId) {
     throw new Error('writeLocation requires studentId and locationId')
   }
 
   const ref = doc(db, 'events', EVENT_CODE, 'locations', studentId)
-  const payload = {
+  await setDoc(ref, {
     studentId,
     studentName,
     role: role || 'student',
@@ -25,12 +17,6 @@ export async function writeLocation({
     note: note || null,
     timestamp: serverTimestamp(),
     deviceId: getDeviceId(),
-    withRosterIds: Array.isArray(withRosterIds) ? withRosterIds : [],
-    withOther: withOther || null,
-    otherApproved: withOther ? false : null,
-    otherApprovedBy: null,
-    otherApprovedAt: null,
-  }
-
-  await setDoc(ref, payload)
+    groupId: groupId || null,
+  })
 }

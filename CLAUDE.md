@@ -47,9 +47,13 @@ Firestore (under `/events/2026cmptx/`):
 
 ## Build phases (status)
 
-Done: Phase 1 (scaffold) → Phase 2 (identity + RosterPicker) → Phase 3 (MyLocation + Firestore writes) → Phase 4 (TeamView real-time grid) → Phase 4.5a (mentor PIN login).
+Done: Phase 1 (scaffold) → Phase 2 (identity + RosterPicker) → Phase 3 (MyLocation + Firestore writes) → Phase 4 (TeamView real-time grid) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners + group movement).
 
-In progress / next: Phase 4.5b (BuddyPicker with min-count enforcement), Phase 4.5c (monitor approval inbox for "Other" buddies), Phase 5 (last-5 history), Phase 6 (admin dashboard + messaging), Phase 7 (FCM background push via Cloud Function), Phase 8 (offline queue + PWA install testing).
+Next: Phase 4.5c (monitor approval for "Other" buddies on group doc), Phase 5 (last-5 history), Phase 6 (admin dashboard + messaging), Phase 7 (FCM background push via Cloud Function), Phase 8 (offline queue + PWA install testing).
+
+## Persistent groups (core concept)
+
+Groups live in `/events/{ec}/groups/{groupId}` and persist across location changes. Any confirmed member can instant-move the entire group or leave it. Key lib: [src/lib/groups.js](src/lib/groups.js). BuddyPicker creates groups; MyLocation handles move/leave dialogs, claim banners (Confirm / Add Someone / Different Location), "Add to Group" button, and group-conflict resolution (join theirs vs invite to yours).
 
 ## Local dev
 

@@ -2,13 +2,15 @@ import { useEffect, useState, useMemo } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
 import { EVENT_CODE, STALE_MS } from '../../lib/constants'
-import { LOCATIONS } from '../../lib/locations'
+import { LOCATIONS, locationLabel } from '../../lib/locations'
 import { ROSTER, nameOf } from '../../lib/roster'
+import { subscribeAllGroups } from '../../lib/groups'
 import { relativeTime, toDate } from '../../lib/time'
 import styles from './TeamView.module.css'
 
 export default function TeamView() {
   const [docs, setDocs] = useState([])
+  const [groups, setGroups] = useState({})
   const [, setTick] = useState(0)
 
   useEffect(() => {
@@ -18,63 +20,46 @@ export default function TeamView() {
     })
   }, [])
 
-  // Re-render every 60s so relative times stay fresh
+  useEffect(() => subscribeAllGroups(setGroups), [])
+
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 60_000)
     return () => clearInterval(id)
   }, [])
 
-  // Lookup of locationId per rosterId for mutual-buddy check
-  const locationByRosterId = useMemo(() => {
-    const m = new Map()
-    for (const d of docs) m.set(d.id, d)
-    return m
-  }, [docs])
-
   const grouped = useMemo(() => {
     const byLocation = {}
-    const studentIdsWithDoc = new Set()
+    const idsWithDoc = new Set()
     for (const d of docs) {
       const loc = d.location || 'unknown'
       if (!byLocation[loc]) byLocation[loc] = []
       byLocation[loc].push(d)
-      studentIdsWithDoc.add(d.id)
+      idsWithDoc.add(d.id)
     }
     for (const arr of Object.values(byLocation)) {
       arr.sort((a, b) => a.studentName.localeCompare(b.studentName))
     }
-    const notSignedIn = ROSTER.filter(s => !studentIdsWithDoc.has(s.id))
+    const notSignedIn = ROSTER.filter(s => !idsWithDoc.has(s.id))
     return { byLocation, notSignedIn }
   }, [docs])
 
-  function renderBuddies(s) {
-    const named = (s.withRosterIds || []).map(buddyId => {
-      const buddyDoc = locationByRosterId.get(buddyId)
-      const mutual = buddyDoc?.location === s.location && (buddyDoc.withRosterIds || []).includes(s.id)
-      const atDifferent = buddyDoc && buddyDoc.location !== s.location
-      let status
-      if (mutual) status = '✓'
-      else if (atDifferent) status = `✗ at ${locationLabel(buddyDoc.location)}`
-      else if (!buddyDoc) status = 'not signed in'
-      else status = 'unconfirmed'
-      return { name: nameOf(buddyId), status, mutual }
-    })
-    const otherChip = s.withOther
-      ? { name: s.withOther, status: s.otherApproved ? '✓ verified' : '⚠ needs OK', isOther: true }
-      : null
-    const all = [...named, ...(otherChip ? [otherChip] : [])]
-    if (all.length === 0) return null
-
-    return (
-      <div className={styles.rowBuddies}>
-        with {all.map((b, i) => (
-          <span key={i} className={`${styles.buddyChip} ${b.mutual ? '' : b.status?.startsWith('✗') ? styles.buddyDisputed : styles.buddyPending}`}>
-            {b.name} {b.status}
-            {i < all.length - 1 && ', '}
-          </span>
-        ))}
-      </div>
-    )
+  function renderGroupInfo(s) {
+    if (!s.groupId) return null
+    const group = groups[s.groupId]
+    if (!group) return null
+    const confirmed = (group.confirmedMembers || []).filter(id => id !== s.id)
+    const pending = (group.members || []).filter(id => id !== s.id && !(group.confirmedMembers || []).includes(id))
+    const parts = [
+      ...confirmed.map(id => {
+        const buddyLoc = docs.find(d => d.id === id)
+        const atSameLocation = buddyLoc?.location === s.location
+        return `${nameOf(id)}${atSameLocation ? ' ✓' : ` ✗ at ${locationLabel(buddyLoc?.location || '?')}`}`
+      }),
+      ...pending.map(id => `${nameOf(id)} (pending)`),
+      group.withOther && `${group.withOther}${group.otherApproved ? ' ✓' : ' ⚠ needs OK'}`,
+    ].filter(Boolean)
+    if (parts.length === 0) return null
+    return <div className={styles.rowBuddies}>Group: {parts.join(', ')}</div>
   }
 
   const totalCheckedIn = docs.length
@@ -112,7 +97,7 @@ export default function TeamView() {
                       <span className={styles.rowTime}>{ts ? relativeTime(ts) : 'unknown'}</span>
                       {s.note && <span className={styles.rowNote}>"{s.note}"</span>}
                     </div>
-                    {renderBuddies(s)}
+                    {renderGroupInfo(s)}
                   </li>
                 )
               })}

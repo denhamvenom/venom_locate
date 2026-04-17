@@ -44,8 +44,21 @@
   padding: 18px 18px;
 }
 
+.actionRow {
+  display: flex;
+  gap: 10px;
+}
+
 .changeBtn {
-  align-self: stretch;
+  flex: 1;
+}
+
+.addToGroupBtn {
+  flex: 1;
+  background-color: var(--color-gold);
+  color: #1A1A1A;
+  font-weight: 700;
+  border: none;
 }
 
 .cancelBtn {
@@ -209,4 +222,47 @@
   font-size: 0.85rem;
   border-radius: 8px;
   border: 1.5px solid var(--color-border);
+}
+
+/* ── Group dialog (move vs leave) ── */
+
+.groupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 24px;
+}
+
+.groupModal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.groupTitle {
+  margin: 0;
+  color: var(--color-gold);
+  font-size: 1.2rem;
+}
+
+.groupText {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.groupActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
 }
