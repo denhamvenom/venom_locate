@@ -6,6 +6,20 @@
   gap: 14px;
 }
 
+.searchBar {
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.searchBar:focus {
+  outline: 2px solid var(--color-purple);
+}
+
 .summary {
   display: flex;
   align-items: center;
@@ -91,6 +105,22 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text);
+}
+
+.rowNameBtn {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.rowNameBtn:active {
+  opacity: 0.7;
 }
 
 .rowMeta {

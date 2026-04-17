@@ -6,6 +6,7 @@ import {
 import { db } from './firebase'
 import { EVENT_CODE } from './constants'
 import { getDeviceId } from './deviceId'
+import { writeHistoryEntry } from './locationSync'
 
 const groupsRef = () => collection(db, 'events', EVENT_CODE, 'groups')
 const locRef = (rosterId) => doc(db, 'events', EVENT_CODE, 'locations', rosterId)
@@ -69,6 +70,8 @@ export async function joinGroup(groupId, person) {
     deviceId: getDeviceId(),
     groupId,
   })
+
+  await writeHistoryEntry(person.id, data.location, groupId)
 }
 
 export async function findMemberGroup(rosterId, allGroups) {
@@ -98,6 +101,10 @@ export async function moveGroup(groupId, newLocationId) {
   }
 
   await batch.commit()
+
+  for (const memberId of confirmed) {
+    await writeHistoryEntry(memberId, newLocationId, groupId)
+  }
 }
 
 export async function leaveGroup(groupId, rosterId) {

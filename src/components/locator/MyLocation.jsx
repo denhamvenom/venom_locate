@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { doc, onSnapshot } from 'firebase/firestore'
+import { doc, collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
-import { EVENT_CODE } from '../../lib/constants'
+import { EVENT_CODE, HISTORY_LIMIT } from '../../lib/constants'
 import { LOCATIONS, locationLabel, locationIcon } from '../../lib/locations'
+import { relativeTime, toDate } from '../../lib/time'
 import { writeLocation } from '../../lib/locationSync'
 import {
   createGroup, joinGroup, moveGroup, leaveGroup,
@@ -30,6 +31,7 @@ export default function MyLocation() {
   const [buddyPickerInitial, setBuddyPickerInitial] = useState([])
   const [groupDialog, setGroupDialog] = useState(null)
   const [groupConflict, setGroupConflict] = useState(null)
+  const [history, setHistory] = useState([])
 
   useEffect(() => {
     if (!studentId) return
@@ -44,6 +46,18 @@ export default function MyLocation() {
   useEffect(() => subscribeMyGroup(current?.groupId, setMyGroup), [current?.groupId])
   useEffect(() => { if (!studentId) return; return subscribeGroupClaims(studentId, setPendingClaims) }, [studentId])
   useEffect(() => subscribeAllGroups(setAllGroups), [])
+
+  useEffect(() => {
+    if (!studentId) return
+    const q = query(
+      collection(db, 'events', EVENT_CODE, 'locationHistory', studentId, 'entries'),
+      orderBy('timestamp', 'desc'),
+      limit(HISTORY_LIMIT)
+    )
+    return onSnapshot(q, (snap) => {
+      setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    })
+  }, [studentId])
 
   const inGroup = !!myGroup && (myGroup.confirmedMembers || []).includes(studentId)
 
@@ -242,6 +256,25 @@ export default function MyLocation() {
               Add to Group
             </button>
           )}
+        </div>
+      )}
+
+      {/* ── History (collapsed) ── */}
+      {!pickerOpen && history.length > 0 && (
+        <div className={styles.historyCard}>
+          <div className={styles.historyLabel}>Recent locations</div>
+          <ul className={styles.historyList}>
+            {history.map(h => {
+              const ts = toDate(h.timestamp)
+              return (
+                <li key={h.id} className={styles.historyRow}>
+                  <span className={styles.historyIcon}>{locationIcon(h.location)}</span>
+                  <span className={styles.historyLoc}>{locationLabel(h.location)}</span>
+                  <span className={styles.historyTime}>{ts ? relativeTime(ts) : ''}</span>
+                </li>
+              )
+            })}
+          </ul>
         </div>
       )}
 

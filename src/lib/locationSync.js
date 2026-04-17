@@ -1,7 +1,10 @@
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from './firebase'
 import { EVENT_CODE } from './constants'
 import { getDeviceId } from './deviceId'
+
+const historyRef = (rosterId) =>
+  collection(db, 'events', EVENT_CODE, 'locationHistory', rosterId, 'entries')
 
 export async function writeLocation({ studentId, studentName, role, locationId, note, groupId }) {
   if (!studentId || !locationId) {
@@ -17,6 +20,22 @@ export async function writeLocation({ studentId, studentName, role, locationId, 
     note: note || null,
     timestamp: serverTimestamp(),
     deviceId: getDeviceId(),
+    groupId: groupId || null,
+  })
+
+  await addDoc(historyRef(studentId), {
+    location: locationId,
+    note: note || null,
+    timestamp: serverTimestamp(),
+    groupId: groupId || null,
+  })
+}
+
+export async function writeHistoryEntry(rosterId, locationId, groupId) {
+  await addDoc(historyRef(rosterId), {
+    location: locationId,
+    note: null,
+    timestamp: serverTimestamp(),
     groupId: groupId || null,
   })
 }

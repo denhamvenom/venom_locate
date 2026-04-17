@@ -6,12 +6,15 @@ import { LOCATIONS, locationLabel } from '../../lib/locations'
 import { ROSTER, nameOf } from '../../lib/roster'
 import { subscribeAllGroups } from '../../lib/groups'
 import { relativeTime, toDate } from '../../lib/time'
+import StudentDetail from './StudentDetail'
 import styles from './TeamView.module.css'
 
 export default function TeamView() {
   const [docs, setDocs] = useState([])
   const [groups, setGroups] = useState({})
   const [, setTick] = useState(0)
+  const [search, setSearch] = useState('')
+  const [detailPerson, setDetailPerson] = useState(null)
 
   useEffect(() => {
     const ref = collection(db, 'events', EVENT_CODE, 'locations')
@@ -27,10 +30,13 @@ export default function TeamView() {
     return () => clearInterval(id)
   }, [])
 
+  const sq = search.toLowerCase()
+
   const grouped = useMemo(() => {
     const byLocation = {}
     const idsWithDoc = new Set()
     for (const d of docs) {
+      if (sq && !d.studentName?.toLowerCase().includes(sq)) continue
       const loc = d.location || 'unknown'
       if (!byLocation[loc]) byLocation[loc] = []
       byLocation[loc].push(d)
@@ -39,9 +45,11 @@ export default function TeamView() {
     for (const arr of Object.values(byLocation)) {
       arr.sort((a, b) => a.studentName.localeCompare(b.studentName))
     }
-    const notSignedIn = ROSTER.filter(s => !idsWithDoc.has(s.id))
-    return { byLocation, notSignedIn }
-  }, [docs])
+    const allIdsWithDoc = new Set(docs.map(d => d.id))
+    const notSignedIn = ROSTER.filter(s => !allIdsWithDoc.has(s.id))
+      .filter(s => !sq || s.display.toLowerCase().includes(sq))
+    return { byLocation, notSignedIn, idsWithDoc }
+  }, [docs, sq])
 
   function renderGroupInfo(s) {
     if (!s.groupId) return null
@@ -66,6 +74,16 @@ export default function TeamView() {
 
   return (
     <div className={styles.screen}>
+      <input
+        className={styles.searchBar}
+        type="text"
+        name="team-search"
+        placeholder="Search by name..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        autoComplete="off"
+      />
+
       <div className={styles.summary}>
         <span className={styles.summaryStrong}>{totalCheckedIn}</span> checked in
         <span className={styles.summaryDivider}>·</span>
@@ -89,10 +107,10 @@ export default function TeamView() {
                 const isMentor = s.role === 'mentor'
                 return (
                   <li key={s.id} className={`${styles.row} ${stale ? styles.rowStale : ''}`}>
-                    <div className={styles.rowName}>
+                    <button type="button" className={styles.rowNameBtn} onClick={() => setDetailPerson(s)}>
                       {s.studentName}
                       {isMentor && <span className={styles.rowMentorTag}>Mentor</span>}
-                    </div>
+                    </button>
                     <div className={styles.rowMeta}>
                       <span className={styles.rowTime}>{ts ? relativeTime(ts) : 'unknown'}</span>
                       {s.note && <span className={styles.rowNote}>"{s.note}"</span>}
@@ -131,6 +149,10 @@ export default function TeamView() {
           <p>No students in roster yet.</p>
           <p className={styles.emptyHint}>Add names to <code>src/data/students.csv</code>.</p>
         </div>
+      )}
+
+      {detailPerson && (
+        <StudentDetail person={detailPerson} onClose={() => setDetailPerson(null)} />
       )}
     </div>
   )
