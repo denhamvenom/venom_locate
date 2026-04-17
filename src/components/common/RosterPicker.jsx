@@ -1,13 +1,9 @@
 import { useState, useMemo } from 'react'
 import { STUDENTS, MENTORS } from '../../lib/roster'
-import PasswordModal from './PasswordModal'
 import styles from './RosterPicker.module.css'
-
-const MENTOR_PIN = import.meta.env.VITE_MENTOR_PIN
 
 export default function RosterPicker({ value, onChange, onClose }) {
   const [query, setQuery] = useState('')
-  const [pinFor, setPinFor] = useState(null)
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -18,17 +14,7 @@ export default function RosterPicker({ value, onChange, onClose }) {
   }, [query])
 
   function tap(person) {
-    if (person.role === 'mentor') {
-      setPinFor(person)
-      return
-    }
     onChange(person)
-    onClose()
-  }
-
-  function handlePinSuccess() {
-    onChange(pinFor)
-    setPinFor(null)
     onClose()
   }
 
@@ -88,7 +74,7 @@ export default function RosterPicker({ value, onChange, onClose }) {
                 >
                   <span>{s.display}</span>
                   <span className={styles.mentorTag}>
-                    {s.isMonitor ? '🛡️ Monitor' : '🔒 PIN'}
+                    {s.isMonitor ? '🛡️ Monitor' : '🔒 Mentor'}
                   </span>
                 </button>
               ))}
@@ -96,15 +82,6 @@ export default function RosterPicker({ value, onChange, onClose }) {
           )}
         </div>
       </div>
-
-      {pinFor && (
-        <PasswordModal
-          title={`Enter mentor PIN for ${pinFor.display}`}
-          password={MENTOR_PIN}
-          onSuccess={handlePinSuccess}
-          onCancel={() => setPinFor(null)}
-        />
-      )}
     </div>
   )
 }

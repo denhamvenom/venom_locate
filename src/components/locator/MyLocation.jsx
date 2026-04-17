@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { doc, collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
 import { EVENT_CODE, HISTORY_LIMIT } from '../../lib/constants'
@@ -18,6 +19,7 @@ import styles from './MyLocation.module.css'
 
 export default function MyLocation() {
   const { studentId, studentName, role } = useApp()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { showToast, ToastContainer } = useToast()
   const [note, setNote] = useState('')
   const [current, setCurrent] = useState(null)
@@ -46,6 +48,13 @@ export default function MyLocation() {
   useEffect(() => subscribeMyGroup(current?.groupId, setMyGroup), [current?.groupId])
   useEffect(() => { if (!studentId) return; return subscribeGroupClaims(studentId, setPendingClaims) }, [studentId])
   useEffect(() => subscribeAllGroups(setAllGroups), [])
+
+  useEffect(() => {
+    if (searchParams.get('openPicker') === '1') {
+      setPickerOpen(true)
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   useEffect(() => {
     if (!studentId) return

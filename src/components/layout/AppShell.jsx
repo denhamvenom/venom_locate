@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Outlet, useNavigate, NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
+import MessageBanner from '../common/MessageBanner'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
   const navigate = useNavigate()
-  const { studentName, clearStudent, swUpdateReady, applyUpdate } = useApp()
+  const { studentName, isMonitor, clearStudent, swUpdateReady, applyUpdate } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
 
   function handleSignOut() {
@@ -46,6 +47,7 @@ export default function AppShell() {
       </header>
 
       <MonitorApprovalBanner />
+      <MessageBanner />
 
       <main className={styles.main}>
         <Outlet />
@@ -60,6 +62,12 @@ export default function AppShell() {
           <span className={styles.tabIcon}>👥</span>
           <span>Team</span>
         </NavLink>
+        {isMonitor && (
+          <NavLink to="/messages" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
+            <span className={styles.tabIcon}>💬</span>
+            <span>Messages</span>
+          </NavLink>
+        )}
       </nav>
     </div>
   )

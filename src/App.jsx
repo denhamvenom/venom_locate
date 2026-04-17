@@ -4,15 +4,8 @@ import AppShell from './components/layout/AppShell'
 import LaunchScreen from './components/layout/LaunchScreen'
 import MyLocation from './components/locator/MyLocation'
 import TeamView from './components/locator/TeamView'
-
-function Placeholder({ title, note }) {
-  return (
-    <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 12 }}>
-      <h2 style={{ color: 'var(--color-gold)' }}>{title}</h2>
-      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>{note}</p>
-    </div>
-  )
-}
+import AdminLogin from './components/admin/AdminLogin'
+import MonitorMessages from './components/admin/MonitorMessages'
 
 export default function App() {
   const { studentName } = useApp()
@@ -26,7 +19,8 @@ export default function App() {
           <Route path="/" element={<Navigate to="/me" replace />} />
           <Route path="/me" element={<MyLocation />} />
           <Route path="/team" element={<TeamView />} />
-          <Route path="/admin" element={<Placeholder title="Admin" note="Phase 6 will add the password gate + dashboard." />} />
+          <Route path="/messages" element={<MonitorMessages />} />
+          <Route path="/admin" element={<AdminLogin />} />
           <Route path="*" element={<Navigate to="/me" replace />} />
         </Route>
       </Routes>
