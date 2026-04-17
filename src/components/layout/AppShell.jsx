@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
@@ -43,6 +44,8 @@ export default function AppShell() {
           </div>
         )}
       </header>
+
+      <MonitorApprovalBanner />
 
       <main className={styles.main}>
         <Outlet />

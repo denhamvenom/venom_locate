@@ -6,7 +6,8 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, initialS
   const [query, setQuery] = useState('')
   const [selectedIds, setSelectedIds] = useState(() => new Set(initialSelected))
   const [otherOpen, setOtherOpen] = useState(false)
-  const [otherText, setOtherText] = useState('')
+  const [otherRole, setOtherRole] = useState('')
+  const [otherName, setOtherName] = useState('')
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -16,7 +17,9 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, initialS
     }
   }, [query, selfId])
 
-  const otherCount = otherText.trim() ? 1 : 0
+  const otherComplete = otherRole && otherName.trim()
+  const otherCount = otherComplete ? 1 : 0
+  const otherText = otherComplete ? `${otherRole} — ${otherName.trim()}` : ''
   const total = selectedIds.size + otherCount
   const minMet = total >= requireMin
 
@@ -86,42 +89,61 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, initialS
           autoComplete="off"
         />
 
+        <div className={styles.jumpRow}>
+          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-students')?.scrollIntoView({ behavior: 'smooth' })}>Students</button>
+          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-mentors')?.scrollIntoView({ behavior: 'smooth' })}>Mentors</button>
+          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-other')?.scrollIntoView({ behavior: 'smooth' })}>Other</button>
+        </div>
+
         <div className={styles.list}>
           {filtered.students.length > 0 && (
             <>
-              <div className={styles.section}>Students</div>
+              <div id="bp-students" className={styles.section}>Students</div>
               {filtered.students.map(renderRow)}
             </>
           )}
           {filtered.mentors.length > 0 && (
             <>
-              <div className={styles.section}>Mentors</div>
+              <div id="bp-mentors" className={styles.section}>Mentors</div>
               {filtered.mentors.map(renderRow)}
             </>
           )}
 
-          <div className={styles.section}>Off-roster</div>
-          <div className={`${styles.otherWrap} ${otherText.trim() ? styles.otherActive : ''}`}>
+          <div id="bp-other" className={styles.section}>Off-roster</div>
+          <div className={`${styles.otherWrap} ${otherComplete ? styles.otherActive : ''}`}>
             <button
               type="button"
               className={styles.otherToggle}
               onClick={() => setOtherOpen(o => !o)}
             >
-              <span className={styles.checkbox} aria-hidden>{otherText.trim() ? '✓' : ''}</span>
-              <span className={styles.itemName}>Other (parent, sibling, etc.)</span>
+              <span className={styles.checkbox} aria-hidden>{otherComplete ? '✓' : ''}</span>
+              <span className={styles.itemName}>
+                {otherComplete ? otherText : 'Someone not on the roster'}
+              </span>
               <span className={styles.expand}>{otherOpen ? '▾' : '▸'}</span>
             </button>
             {otherOpen && (
               <div className={styles.otherInputWrap}>
+                <div className={styles.otherRoleRow}>
+                  {['Parent', 'Sibling', 'Grandparent', 'Other Family'].map(r => (
+                    <button
+                      key={r}
+                      type="button"
+                      className={`${styles.otherRoleChip} ${otherRole === r ? styles.otherRoleActive : ''}`}
+                      onClick={() => setOtherRole(prev => prev === r ? '' : r)}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="text"
-                  name="buddy-other"
-                  maxLength={80}
-                  placeholder="Describe who else you're with"
-                  value={otherText}
-                  onChange={(e) => setOtherText(e.target.value)}
+                  name="buddy-other-name"
+                  maxLength={60}
+                  placeholder="Their name"
+                  value={otherName}
+                  onChange={(e) => setOtherName(e.target.value)}
                   autoComplete="off"
-                  autoFocus
                 />
                 <p className={styles.otherHint}>A monitor will need to acknowledge this.</p>
               </div>
