@@ -24,32 +24,37 @@ Roster (students + mentors) lives in CSVs at build time — **not** in Firestore
 - `src/data/locations.csv` — `id, label, icon, buddyMin, enabled`. `buddyMin` = number of OTHER people a student must pick when entering that location. Mentors are exempt.
 
 Firestore (under `/events/2026cmptx/`):
-- `locations/{rosterId}` — current location, last-write-wins. Includes `withRosterIds[]` and optional `withOther` (free text needing monitor approval).
-- `locationHistory/{rosterId}/entries/{autoId}` — append-only log of moves.
-- `messages/{messageId}` — admin broadcasts. Target structured `{ groups: ["all"|"students"|"mentors"][], rosterIds: [] }`.
+- `locations/{rosterId}` — current location, last-write-wins. Has `groupId` reference if in a persistent group.
+- `groups/{groupId}` — persistent buddy groups. `members[]`, `confirmedMembers[]`, `location`, `withOther`, `otherApproved`. Survive location changes.
+- `locationHistory/{rosterId}/entries/{autoId}` — append-only log of moves (includes groupId).
+- `messages/{messageId}` — admin/monitor broadcasts. Target: `{ groups: ["all"|"students"|"mentors"][], rosterIds: [] }`. Kind: `"info"` or `"checkin"`. Acks keyed by rosterId.
+- `pins/{rosterId}` — personal 4-digit PINs. Set on first login, verified on return.
 - `fcmTokens/{deviceId}` — for FCM push (Phase 7).
 
 ## Identity & auth
 
-- Students pick from roster — no PIN required.
-- Mentors: tapping a mentor name in `RosterPicker` opens `PasswordModal` with `VITE_MENTOR_PIN` (currently `8808`). Single shared PIN.
-- Admin: separate password gate (`VITE_ADMIN_PASSWORD = admin8044!@#`) for the `/admin` route.
+- **Personal PINs:** everyone (students + mentors) sets a 4-digit PIN on first login, stored in Firestore `/pins/{rosterId}`. Returning users verify their PIN. PINs are managed in [src/lib/pins.js](src/lib/pins.js). Admin can reset individual or bulk PINs.
+- **Mentors first-time:** must enter team mentor PIN (`VITE_MENTOR_PIN=8808`) before setting personal PIN. Once personal PIN is set, team PIN is skipped on subsequent logins.
+- **Admin:** separate password gate (`VITE_ADMIN_PASSWORD`) for the `/admin` route. Dashboard has Move, Message, and Reset tabs.
+- **Monitors:** mentors with `IsMonitor=TRUE` get a Messages tab in bottom nav + monitor approval banner for "Other" buddy claims. Can send messages/check-ins without admin access.
 - Identity persisted to `localStorage[venomLocate_state]` via `AppContext`.
 
 ## Conventions
 
 - Source-of-truth roster parser: [src/lib/roster.js](src/lib/roster.js) — exports `ROSTER, STUDENTS, MENTORS, MONITORS`. **Do not** create a parallel parser.
 - Source-of-truth location parser: [src/lib/locations.js](src/lib/locations.js) — exports `LOCATIONS` and helpers.
-- Firestore writes go through [src/lib/locationSync.js](src/lib/locationSync.js) (`writeLocation`). Don't write to Firestore directly from components.
+- Firestore writes go through [src/lib/locationSync.js](src/lib/locationSync.js) (`writeLocation`) and [src/lib/groups.js](src/lib/groups.js). Don't write to Firestore directly from components.
+- Messaging via [src/lib/messages.js](src/lib/messages.js) (`sendMessage`, `ackMessage`, `subscribeRecentMessages`, `isMessageForMe`).
+- PIN management via [src/lib/pins.js](src/lib/pins.js) (`getPin`, `setPin`, `deletePin`, `deleteAllPins`).
 - Device ID in [src/lib/deviceId.js](src/lib/deviceId.js) stored under `localStorage[venomLocate_deviceId]`.
 - All shared common components live in `src/components/common/`. Layout in `src/components/layout/`. Feature screens in `src/components/locator/` and `src/components/admin/`.
 - CSS Modules everywhere (`*.module.css`). Theme variables defined in [src/index.css](src/index.css) — copied verbatim from venom-scouting.
 
 ## Build phases (status)
 
-Done: Phase 1 (scaffold) → Phase 2 (identity + RosterPicker) → Phase 3 (MyLocation + Firestore writes) → Phase 4 (TeamView real-time grid) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners + group movement).
+Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab).
 
-Next: Phase 4.5c (monitor approval for "Other" buddies on group doc), Phase 5 (last-5 history), Phase 6 (admin dashboard + messaging), Phase 7 (FCM background push via Cloud Function), Phase 8 (offline queue + PWA install testing).
+Next: Phase 7 (FCM Tier 2 background push via Cloud Function), Phase 8 (offline queue + PWA install testing).
 
 ## Persistent groups (core concept)
 
