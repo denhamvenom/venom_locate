@@ -5,6 +5,8 @@ import { useFcmToken } from '../../hooks/useFcmToken'
 import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
 import MessageBanner from '../common/MessageBanner'
 import OfflineBanner from '../common/OfflineBanner'
+import EmergencyButton from '../common/EmergencyButton'
+import EmergencyBanner from '../common/EmergencyBanner'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
@@ -31,6 +33,7 @@ export default function AppShell() {
       <header className={styles.topBar}>
         <span className={styles.brand}>Venom Locate</span>
         <span className={styles.who}>{studentName}</span>
+        <EmergencyButton />
         <button
           className={styles.gearBtn}
           onClick={() => setMenuOpen(o => !o)}
@@ -63,6 +66,7 @@ export default function AppShell() {
       )}
 
       <OfflineBanner />
+      <EmergencyBanner />
       <MonitorApprovalBanner />
       <MessageBanner />
 

@@ -52,9 +52,17 @@ Firestore (under `/events/2026cmptx/`):
 
 ## Build phases (status)
 
-Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab) → Phase 7 (FCM background push via Cloud Function — verified on iOS and PC) → Phase 8 (Firestore offline persistence + offline indicator banner + PWA install button).
+Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab) → Phase 7 (FCM background push via Cloud Function) → Phase 8 (Firestore offline persistence + offline indicator banner + PWA install button) → Phase 9 (Emergency feature with mentor push + acknowledge + resolve).
 
-**MVP complete.** Live at https://venom-locate-26.web.app
+**Live at https://venom-locate-26.web.app**
+
+## Emergency feature (Phase 9)
+
+- **Trigger:** red ⚠️ button in AppShell header (always visible to all signed-in users when emergency reporting is enabled). Tap → modal with Type (Medical/Personal) + required comment.
+- **Cloud Function `onEmergencyChanged`** (in [functions/index.js](functions/index.js)) fires on emergency doc create AND when status changes to resolved. Creates → push to all mentors with title `🚨 EMERGENCY: [Type]`. Resolves → push with `✅ Emergency Resolved` (same FCM tag so the new notification replaces the old).
+- **In-app banner** ([src/components/common/EmergencyBanner.jsx](src/components/common/EmergencyBanner.jsx)) — pulses red, shows location + comment + acknowledged-by list. Mentors see all active emergencies + "Help on the way" + "Confirm Resolution" buttons. Students see only their own + "False Alarm" button. Other students cannot resolve someone else's emergency.
+- **Admin toggle** in Reset tab — `setEmergencyEnabled(false)` writes `/events/{ec}/config/emergency.enabled = false`. EmergencyButton subscribes to this config and self-hides when disabled.
+- **Lib:** [src/lib/emergencies.js](src/lib/emergencies.js) — `createEmergency, acknowledgeEmergency, resolveEmergency, subscribeActiveEmergencies, subscribeEmergencyConfig, setEmergencyEnabled`.
 
 ## Persistent groups (core concept)
 

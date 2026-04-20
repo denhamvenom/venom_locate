@@ -9,6 +9,7 @@ import { moveGroup as moveGroupFn, subscribeAllGroups } from '../../lib/groups'
 import { sendMessage, subscribeRecentMessages, isMessageForMe } from '../../lib/messages'
 import { relativeTime, toDate } from '../../lib/time'
 import { deletePin, deleteAllPins } from '../../lib/pins'
+import { subscribeEmergencyConfig, setEmergencyEnabled } from '../../lib/emergencies'
 import { useApp } from '../../context/AppContext'
 import { useToast } from '../common/Toast'
 import TargetPicker from '../common/TargetPicker'
@@ -34,6 +35,9 @@ export default function AdminDashboard() {
   // PIN reset state
   const [resetPinPerson, setResetPinPerson] = useState('')
 
+  // Emergency config
+  const [emergencyEnabled, setEmergencyEnabledState] = useState(true)
+
   // Message state
   const [msgBody, setMsgBody] = useState('')
   const [msgKind, setMsgKind] = useState('info')
@@ -49,6 +53,7 @@ export default function AdminDashboard() {
 
   useEffect(() => subscribeAllGroups(setGroups), [])
   useEffect(() => subscribeRecentMessages(setSentMessages), [])
+  useEffect(() => subscribeEmergencyConfig((cfg) => setEmergencyEnabledState(cfg.enabled !== false)), [])
 
   const activeGroups = Object.values(groups).filter(g => (g.confirmedMembers || []).length > 1)
 
@@ -294,6 +299,30 @@ export default function AdminDashboard() {
       {/* ── Reset tab ── */}
       {tab === 'reset' && (
         <div className={styles.tabContent}>
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>Emergency reporting</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+              Currently {emergencyEnabled ? <strong style={{ color: 'var(--color-success)' }}>ON</strong> : <strong style={{ color: 'var(--color-error)' }}>OFF</strong>}.
+              When off, the ⚠️ button is hidden for everyone.
+            </p>
+            <button
+              className={emergencyEnabled ? 'btn-danger' : 'btn-primary'}
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true)
+                try {
+                  await setEmergencyEnabled(!emergencyEnabled)
+                  showToast(`Emergency reporting ${!emergencyEnabled ? 'enabled' : 'disabled'}`, 'success')
+                } catch (err) { console.error(err); showToast('Failed', 'error') }
+                finally { setBusy(false) }
+              }}
+            >
+              {emergencyEnabled ? 'Turn OFF Emergency Reporting' : 'Turn ON Emergency Reporting'}
+            </button>
+          </section>
+
+          <div className="divider" />
+
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>Reset a student's PIN</h3>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
