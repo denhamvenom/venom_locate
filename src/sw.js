@@ -30,7 +30,7 @@ onBackgroundMessage(messaging, (payload) => {
     badge: '/venom-logo-192.png',
     vibrate: kind === 'checkin' ? [200, 100, 200, 100, 200] : [200],
     requireInteraction: kind === 'checkin',
-    tag: data.messageId || 'venom-msg',
+    tag: kind === 'checkin' ? 'venom-checkin' : (data.messageId || 'venom-msg'),
     data: { url: '/' },
   })
 })

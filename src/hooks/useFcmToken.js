@@ -49,7 +49,7 @@ export function useFcmToken(rosterId, role) {
             icon: '/venom-logo-192.png',
             badge: '/venom-logo-192.png',
             vibrate: data.kind === 'checkin' ? [200, 100, 200, 100, 200] : [200],
-            tag: data.messageId || 'venom-msg',
+            tag: data.kind === 'checkin' ? 'venom-checkin' : (data.messageId || 'venom-msg'),
             requireInteraction: data.kind === 'checkin',
           }
           if (swReg) swReg.showNotification(title, opts)

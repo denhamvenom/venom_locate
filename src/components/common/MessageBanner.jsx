@@ -28,9 +28,16 @@ export default function MessageBanner() {
     })
   }, [studentId])
 
-  const unacked = messages.filter(m =>
+  const allUnacked = messages.filter(m =>
     isMessageForMe(m, studentId, role) && !m.acks?.[studentId]
   )
+
+  // Check-ins don't stack — only the most recent unacked check-in is shown.
+  // Info messages always stack (they're independent broadcasts).
+  const checkins = allUnacked.filter(m => m.kind === 'checkin')
+  const infos = allUnacked.filter(m => m.kind !== 'checkin')
+  const latestCheckin = checkins.length > 0 ? checkins[0] : null // already ordered desc
+  const unacked = latestCheckin ? [latestCheckin, ...infos] : infos
 
   useEffect(() => {
     if (unacked.length === 0) return
