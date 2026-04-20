@@ -10,9 +10,6 @@ export default function AppLockedScreen() {
         The app is currently disabled by an administrator.
         It will return to normal once re-enabled.
       </p>
-      <p className={styles.hint}>
-        Emergency reporting still works (⚠️ button at top).
-      </p>
     </div>
   )
 }

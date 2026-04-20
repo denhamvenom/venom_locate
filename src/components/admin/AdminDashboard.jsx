@@ -383,8 +383,8 @@ export default function AdminDashboard() {
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>App lock</h3>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
-              Locked users can sign in but see a "App Locked" screen instead of the app.
-              Admins always retain full access. Emergency button stays available even when locked.
+              Locked users can sign in but see an "App Locked" screen instead of the app.
+              Admins always retain full access. The Emergency button is hidden for locked users.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
               <button

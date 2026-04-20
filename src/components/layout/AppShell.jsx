@@ -39,7 +39,7 @@ export default function AppShell() {
       <header className={styles.topBar}>
         <span className={styles.brand}>Venom Locate</span>
         <span className={styles.who}>{studentName}</span>
-        <EmergencyButton />
+        {!locked && <EmergencyButton />}
         <button
           className={styles.gearBtn}
           onClick={() => setMenuOpen(o => !o)}
