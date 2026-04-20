@@ -135,6 +135,35 @@
   line-height: 1.5;
 }
 
+.sentMessagesGroup {
+  display: block;
+}
+
+.sentMessagesSummary {
+  cursor: pointer;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  list-style: none;
+  user-select: none;
+  margin-bottom: 8px;
+}
+
+.sentMessagesSummary::-webkit-details-marker { display: none; }
+
+.sentMessagesSummary::after {
+  content: ' ▸';
+  color: var(--color-text-muted);
+}
+
+.sentMessagesGroup[open] .sentMessagesSummary::after {
+  content: ' ▾';
+}
+
 /* ── Message log ── */
 
 .messageLog {

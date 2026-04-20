@@ -69,8 +69,8 @@ export default function MonitorMessages() {
       </section>
 
       {sentMessages.length > 0 && (
-        <section className={styles.log}>
-          <h3 className={styles.logTitle}>Sent messages</h3>
+        <details className={styles.log}>
+          <summary className={styles.logTitle}>Sent messages ({sentMessages.length})</summary>
           {sentMessages.map(msg => {
             const acks = msg.acks || {}
             const ackCount = Object.keys(acks).length
@@ -101,7 +101,7 @@ export default function MonitorMessages() {
               </details>
             )
           })}
-        </section>
+        </details>
       )}
 
       <ToastContainer />

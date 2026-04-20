@@ -254,8 +254,8 @@ export default function AdminDashboard() {
           </section>
 
           {sentMessages.length > 0 && (
-            <section className={styles.section} style={{ marginTop: 16 }}>
-              <h3 className={styles.sectionTitle}>Sent messages</h3>
+            <details className={styles.sentMessagesGroup} style={{ marginTop: 16 }}>
+              <summary className={styles.sentMessagesSummary}>Sent messages ({sentMessages.length})</summary>
               <div className={styles.messageLog}>
                 {sentMessages.map(msg => {
                   const acks = msg.acks || {}
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
                   )
                 })}
               </div>
-            </section>
+            </details>
           )}
         </div>
       )}

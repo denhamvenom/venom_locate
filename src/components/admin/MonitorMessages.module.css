@@ -80,9 +80,28 @@
 }
 
 .logTitle {
-  margin: 0;
+  margin: 0 0 8px;
   font-size: 0.95rem;
   color: var(--color-text);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  list-style: none;
+  user-select: none;
+}
+
+.logTitle::-webkit-details-marker { display: none; }
+
+.logTitle::after {
+  content: ' ▸';
+  color: var(--color-text-muted);
+}
+
+.log[open] .logTitle::after {
+  content: ' ▾';
 }
 
 .msgEntry {

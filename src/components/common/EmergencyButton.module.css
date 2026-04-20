@@ -1,14 +1,12 @@
 .btn {
   min-width: 44px;
   min-height: 44px;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-error);
-  border-radius: 50%;
+  background: none;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.3);
 }
 
 .btn:active {

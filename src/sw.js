@@ -49,5 +49,10 @@ self.addEventListener('notificationclick', (event) => {
   )
 })
 
-self.addEventListener('install', () => self.skipWaiting())
+// Don't auto-skipWaiting here — vite-plugin-pwa's registerType='prompt' relies
+// on the new SW staying in waiting state until user taps "Tap to update".
+// Listen for the SKIP_WAITING message that the prompt flow sends on tap.
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
