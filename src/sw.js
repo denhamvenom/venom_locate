@@ -19,7 +19,6 @@ const app = initializeApp({
 const messaging = getMessaging(app)
 
 onBackgroundMessage(messaging, (payload) => {
-  console.log('[SW] background message:', payload)
   const data = payload.data || {}
   const title = data.title || 'Venom Locate'
   const body = data.body || 'New message'

@@ -52,13 +52,20 @@ Firestore (under `/events/2026cmptx/`):
 
 ## Build phases (status)
 
-Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab) → Phase 7 (FCM background push via Cloud Function — verified working on iOS and PC).
+Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab) → Phase 7 (FCM background push via Cloud Function — verified on iOS and PC) → Phase 8 (Firestore offline persistence + offline indicator banner + PWA install button).
 
-Next: Phase 8 (offline queue + PWA install testing).
+**MVP complete.** Live at https://venom-locate-26.web.app
 
 ## Persistent groups (core concept)
 
 Groups live in `/events/{ec}/groups/{groupId}` and persist across location changes. Any confirmed member can instant-move the entire group or leave it. Key lib: [src/lib/groups.js](src/lib/groups.js). BuddyPicker creates groups; MyLocation handles move/leave dialogs, claim banners (Confirm / Add Someone / Different Location), "Add to Group" button, and group-conflict resolution (join theirs vs invite to yours).
+
+## Offline support (Phase 8)
+
+- **Firestore persistence:** [src/lib/firebase.js](src/lib/firebase.js) initializes Firestore with `persistentLocalCache({ tabManager: persistentMultipleTabManager() })`. Reads work from cache when offline; writes queue locally and sync automatically on reconnect.
+- **Offline banner:** [src/components/common/OfflineBanner.jsx](src/components/common/OfflineBanner.jsx) listens to `window.online`/`offline` events and renders a yellow pulsing banner when disconnected.
+- **No separate Dexie queue needed.** Firestore SDK handles offline writes natively — keeping the data model simpler than the venom-scouting Dexie pattern.
+- **Install App button:** AppShell gear menu shows "Install App" when `beforeinstallprompt` was captured (only fires on Android Chrome — iOS users use Share → Add to Home Screen).
 
 ## FCM push (Phase 7)
 

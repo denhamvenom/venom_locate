@@ -33,7 +33,3 @@ export function locationLabel(id) {
 export function locationIcon(id) {
   return LOCATIONS.find(l => l.id === id)?.icon ?? '📍'
 }
-
-export function locationBuddyMin(id) {
-  return LOCATIONS.find(l => l.id === id)?.buddyMin ?? 0
-}

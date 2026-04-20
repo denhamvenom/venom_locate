@@ -39,8 +39,8 @@ export function useFcmToken(rosterId, role) {
       }
 
       onMessage(messaging, (payload) => {
-        console.log('[FCM foreground]', payload)
-        // If page is hidden (minimized/background tab), manually show OS notification
+        // If page is hidden (minimized/background tab), manually show OS notification.
+        // Visible foreground messages are handled by MessageBanner via Firestore.
         if (document.visibilityState === 'hidden') {
           const data = payload.data || {}
           const title = data.title || 'Venom Locate'

@@ -4,11 +4,12 @@ import { useApp } from '../../context/AppContext'
 import { useFcmToken } from '../../hooks/useFcmToken'
 import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
 import MessageBanner from '../common/MessageBanner'
+import OfflineBanner from '../common/OfflineBanner'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
   const navigate = useNavigate()
-  const { studentId, studentName, role, isMonitor, clearStudent, swUpdateReady, applyUpdate } = useApp()
+  const { studentId, studentName, role, isMonitor, clearStudent, swUpdateReady, applyUpdate, installPrompt, triggerInstall } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const { permission, requestPermission } = useFcmToken(studentId, role)
@@ -39,6 +40,11 @@ export default function AppShell() {
         </button>
         {menuOpen && (
           <div className={styles.menu} onMouseLeave={() => setMenuOpen(false)}>
+            {installPrompt && (
+              <button className={styles.menuItem} onClick={() => { setMenuOpen(false); triggerInstall() }}>
+                Install App
+              </button>
+            )}
             <button className={styles.menuItem} onClick={() => { setMenuOpen(false); navigate('/admin') }}>
               Admin
             </button>
@@ -56,6 +62,7 @@ export default function AppShell() {
         </div>
       )}
 
+      <OfflineBanner />
       <MonitorApprovalBanner />
       <MessageBanner />
 

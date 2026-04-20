@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
 import { getMessaging, isSupported as isMessagingSupported } from 'firebase/messaging'
 
 const firebaseConfig = {
@@ -12,7 +12,15 @@ const firebaseConfig = {
 }
 
 export const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+
+// Firestore with offline persistence (IndexedDB) and multi-tab support.
+// Writes made while offline queue locally and sync automatically on reconnect.
+// Reads return cached data when offline.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+})
 
 // FCM is initialized lazily — Safari/iOS requires PWA install + iOS 16.4+,
 // and isSupported() returns false on unsupported browsers without throwing.
