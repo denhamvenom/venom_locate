@@ -13,12 +13,14 @@ function parseLocations() {
     const label = (cols[1] || '').trim()
     const icon = (cols[2] || '').trim()
     const buddyMin = parseInt((cols[3] || '0').trim(), 10) || 0
-    const enabled = (cols[4] || '').trim().toUpperCase()
+    const requiresNote = (cols[4] || '').trim().toUpperCase() === 'TRUE'
+    const requiresApproval = (cols[5] || '').trim().toUpperCase() === 'TRUE'
+    const enabled = (cols[6] || '').trim().toUpperCase()
 
     if (!id || !label) continue
     if (enabled !== 'TRUE') continue
 
-    locations.push({ id, label, icon, buddyMin })
+    locations.push({ id, label, icon, buddyMin, requiresNote, requiresApproval })
   }
 
   return locations

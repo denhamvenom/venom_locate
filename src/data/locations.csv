@@ -1,15 +1,19 @@
-id,label,icon,buddyMin,enabled
-# buddyMin = number of OTHER people required to be with the student.
-# 0 = no requirement (Add buddy still optional). 1+ = students must pick that many buddies.
-# Mentors are exempt from buddyMin enforcement.
-pits,Pits,🔧,0,TRUE
-stands,Stands,🪑,0,TRUE
-queue,Queue,⏳,0,TRUE
-practice,Practice Field,🎯,0,TRUE
-lobby,Lobby,🚪,0,TRUE
-food,Food Court,🍔,1,TRUE
-green,The Green,🌳,2,TRUE
-hotel,Hotel,🏨,0,TRUE
-bus,Bus,🚌,0,TRUE
-offsite,Off-site,🌐,0,TRUE
-other,Other,❓,0,TRUE
+id,label,icon,buddyMin,requiresNote,requiresApproval,enabled
+# buddyMin = number of OTHER people required. 0 = no requirement.
+# requiresNote = the note field is mandatory before saving.
+# requiresApproval = opens BuddyPicker; student must fill the "Other" field (parent/family name) and a monitor must approve.
+# Mentors are exempt from buddyMin and requiresApproval enforcement.
+hotel,Hotel,🏨,0,FALSE,FALSE,TRUE
+hotel-room,Hotel Room,🛏️,0,FALSE,FALSE,TRUE
+mall,Mall,🛍️,3,FALSE,FALSE,TRUE
+bus,Bus/Vehicle,🚌,0,FALSE,FALSE,TRUE
+lobby,Event Lobby,🏛️,0,FALSE,FALSE,TRUE
+stands,Stands,🪑,0,FALSE,FALSE,TRUE
+pits,Pits,🔧,0,FALSE,FALSE,TRUE
+quiet-room,Quiet Room,🤫,0,FALSE,FALSE,TRUE
+food,Food Trucks,🍔,2,FALSE,FALSE,TRUE
+green,The Green,🌳,3,FALSE,FALSE,TRUE
+fll,FLL Area,🧱,0,FALSE,FALSE,TRUE
+ftc,FTC Area,⚙️,0,FALSE,FALSE,TRUE
+other,Other,❓,0,TRUE,FALSE,TRUE
+left-event,Left the Event,🚪,0,FALSE,TRUE,TRUE

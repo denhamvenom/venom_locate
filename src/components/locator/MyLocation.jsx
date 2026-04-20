@@ -94,8 +94,15 @@ export default function MyLocation() {
 
   // ── Tile tap ──
   function handleTap(loc) {
+    if (loc.requiresNote && !note.trim()) {
+      showToast(`Add a note describing where for "${loc.label}".`, 'warning', 3000)
+      return
+    }
     if (inGroup) { setGroupDialog({ loc }); return }
-    if (role === 'student' && loc.buddyMin > 0) { setBuddyPickerLoc(loc); setBuddyPickerInitial([]); return }
+    if (role === 'student' && (loc.buddyMin > 0 || loc.requiresApproval)) {
+      setBuddyPickerLoc(loc); setBuddyPickerInitial([])
+      return
+    }
     commitSolo(loc)
   }
 
@@ -298,11 +305,15 @@ export default function MyLocation() {
             {LOCATIONS.map((loc) => {
               const isCurrent = current?.location === loc.id
               const showBuddyHint = role === 'student' && loc.buddyMin > 0 && !inGroup
+              const showApprovalHint = role === 'student' && loc.requiresApproval && !inGroup
+              const showNoteHint = loc.requiresNote
               return (
                 <button key={loc.id} type="button" className={`${styles.tile} ${isCurrent ? styles.tileCurrent : ''}`} onClick={() => handleTap(loc)} disabled={saving}>
                   <span className={styles.tileIcon}>{loc.icon}</span>
                   <span className={styles.tileLabel}>{loc.label}</span>
                   {showBuddyHint && <span className={styles.tileBuddy}>+{loc.buddyMin} 👥</span>}
+                  {showApprovalHint && <span className={styles.tileBuddy}>🛡️ approval</span>}
+                  {showNoteHint && <span className={styles.tileBuddy}>✏️ note</span>}
                 </button>
               )
             })}
@@ -356,6 +367,7 @@ export default function MyLocation() {
           location={buddyPickerLoc}
           selfId={studentId}
           requireMin={inGroup ? 0 : buddyPickerLoc.buddyMin}
+          requireOther={!inGroup && !!buddyPickerLoc.requiresApproval}
           initialSelected={buddyPickerInitial}
           onSave={handleBuddySave}
           onCancel={() => { setBuddyPickerLoc(null); setBuddyPickerInitial([]) }}

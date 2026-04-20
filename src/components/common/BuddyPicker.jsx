@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import { STUDENTS, MENTORS } from '../../lib/roster'
 import styles from './BuddyPicker.module.css'
 
-export default function BuddyPicker({ location, selfId, requireMin = 0, initialSelected = [], onSave, onCancel }) {
+export default function BuddyPicker({ location, selfId, requireMin = 0, requireOther = false, initialSelected = [], onSave, onCancel }) {
   const [query, setQuery] = useState('')
   const [selectedIds, setSelectedIds] = useState(() => new Set(initialSelected))
-  const [otherOpen, setOtherOpen] = useState(false)
+  const [otherOpen, setOtherOpen] = useState(requireOther)
   const [otherRole, setOtherRole] = useState('')
   const [otherName, setOtherName] = useState('')
 
@@ -21,7 +21,7 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, initialS
   const otherCount = otherComplete ? 1 : 0
   const otherText = otherComplete ? `${otherRole} — ${otherName.trim()}` : ''
   const total = selectedIds.size + otherCount
-  const minMet = total >= requireMin
+  const minMet = total >= requireMin && (!requireOther || otherComplete)
 
   function toggle(id) {
     setSelectedIds(prev => {
@@ -67,7 +67,9 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, initialS
               {location.icon} {location.label}
             </h2>
             <p className={styles.subtitle}>
-              {requireMin > 0
+              {requireOther
+                ? "Tell us who you're with (parent, sibling, etc). A monitor must approve."
+                : requireMin > 0
                 ? `Pick at least ${requireMin} other ${requireMin === 1 ? 'person' : 'people'} you're with.`
                 : "Optional — note who you're with."}
             </p>
