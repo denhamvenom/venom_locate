@@ -6,7 +6,7 @@ Real-time student location tracker PWA for FRC 8044 Denham Venom. Sibling projec
 
 ## Stack
 
-Vite 7 + React 19 + React Router 7 + Firebase 12 (Firestore + Cloud Messaging) + Dexie 4 + vite-plugin-pwa. Local dev runs HTTPS via `@vitejs/plugin-basic-ssl` on `https://localhost:5173` so phones on the LAN can install the PWA.
+Vite 7 + React 19 + React Router 7 + Firebase 12 (Firestore + Cloud Messaging) + Dexie 4 + vite-plugin-pwa + workbox-precaching. Local dev runs HTTPS via `@vitejs/plugin-basic-ssl` on `https://localhost:5173` so phones on the LAN can install the PWA. Cloud Functions live in `functions/` (Node 20, 1st gen).
 
 ## Firebase
 
@@ -29,7 +29,7 @@ Firestore (under `/events/2026cmptx/`):
 - `locationHistory/{rosterId}/entries/{autoId}` — append-only log of moves (includes groupId).
 - `messages/{messageId}` — admin/monitor broadcasts. Target: `{ groups: ["all"|"students"|"mentors"][], rosterIds: [] }`. Kind: `"info"` or `"checkin"`. Acks keyed by rosterId.
 - `pins/{rosterId}` — personal 4-digit PINs. Set on first login, verified on return.
-- `fcmTokens/{deviceId}` — for FCM push (Phase 7).
+- `fcmTokens/{deviceId}` — `{ rosterId, role, token, updatedAt }` per device. Cloud Function targets these for push.
 
 ## Identity & auth
 
@@ -52,13 +52,23 @@ Firestore (under `/events/2026cmptx/`):
 
 ## Build phases (status)
 
-Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab).
+Done: Phase 1 (scaffold) → Phase 2 (identity) → Phase 3 (MyLocation) → Phase 4 (TeamView) → Phase 4.5a (mentor PIN login) → Phase 4.5b (persistent groups + BuddyPicker + claim banners) → Phase 4.5c (monitor approval) → Phase 5 (history + search + student detail) → Phase 6 (admin dashboard + messaging + personal PINs + monitor messages tab) → Phase 7 (FCM background push via Cloud Function — verified working on iOS and PC).
 
-Next: Phase 7 (FCM Tier 2 background push via Cloud Function), Phase 8 (offline queue + PWA install testing).
+Next: Phase 8 (offline queue + PWA install testing).
 
 ## Persistent groups (core concept)
 
 Groups live in `/events/{ec}/groups/{groupId}` and persist across location changes. Any confirmed member can instant-move the entire group or leave it. Key lib: [src/lib/groups.js](src/lib/groups.js). BuddyPicker creates groups; MyLocation handles move/leave dialogs, claim banners (Confirm / Add Someone / Different Location), "Add to Group" button, and group-conflict resolution (join theirs vs invite to yours).
+
+## FCM push (Phase 7)
+
+- **Unified service worker:** [src/sw.js](src/sw.js) is the *single* SW combining workbox precaching AND firebase messaging. Built via vite-plugin-pwa's `injectManifest` strategy (NOT `generateSW`). This was non-obvious — when we used `generateSW` + a separate `firebase-messaging-sw.js`, the workbox SW won the root scope and FCM never received pushes. **Don't add a second SW file.**
+- **Token registration:** [src/hooks/useFcmToken.js](src/hooks/useFcmToken.js) handles permission, token retrieval, and writes `/fcmTokens/{deviceId}`. Mounted in AppShell. Uses `navigator.serviceWorker.ready` to get the unified SW.
+- **Permission UI:** AppShell shows a gold "Enable notifications" banner when `Notification.permission === 'default'`. iOS Safari requires the request to come from a user-tap, not auto-fire.
+- **Cloud Function:** [functions/index.js](functions/index.js) — `onMessageCreated` Firestore trigger. Sends **data-only** FCM payloads (no `notification` field) so the SW always controls display via `showNotification()`. Mixing data+notification caused inconsistent cross-browser behavior.
+- **Deploy:** `firebase deploy --only functions` (1st gen, Node 20). 2nd gen failed first-time-setup with Eventarc permission errors — switched to 1st gen which doesn't need Eventarc.
+- **iOS quirks:** Push only works in PWAs **installed to the home screen** on iOS 16.4+. Open from the home-screen icon (not Safari) for permission prompt to fire.
+- **Windows quirk:** even when `showNotification()` succeeds, Windows Focus Assist / per-app notification settings can silently suppress display. If notifications don't appear, check Windows Settings → Notifications → make sure the browser is allowed.
 
 ## Local dev
 
@@ -76,3 +86,5 @@ The dev server is started from this folder; Vite watches all source files and HM
 - Don't reach for `react-router` v6 docs — this project uses v7 (which still imports from `react-router-dom`).
 - Don't add the `Firebase Storage` SDK — we don't need it. Keep `firebase.js` lean.
 - Don't create new common picker components — extend `RosterPicker` or write `BuddyPicker` in `src/components/common/`.
+- Don't add a separate `firebase-messaging-sw.js` — the unified [src/sw.js](src/sw.js) handles both workbox + FCM. Two SWs at root scope conflict.
+- Don't switch FCM payload to use the `notification` field — the SW's data-only handling is intentional for cross-browser consistency.

@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { useFcmToken } from '../../hooks/useFcmToken'
 import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
 import MessageBanner from '../common/MessageBanner'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
   const navigate = useNavigate()
-  const { studentName, isMonitor, clearStudent, swUpdateReady, applyUpdate } = useApp()
+  const { studentId, studentName, role, isMonitor, clearStudent, swUpdateReady, applyUpdate } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const { permission, requestPermission } = useFcmToken(studentId, role)
 
   function handleSignOut() {
     setMenuOpen(false)
@@ -45,6 +48,13 @@ export default function AppShell() {
           </div>
         )}
       </header>
+
+      {permission === 'default' && (
+        <div className={styles.notifBanner}>
+          <span className={styles.notifText}>Enable notifications to get check-ins when the app is closed.</span>
+          <button className={styles.notifBtn} onClick={requestPermission}>Enable</button>
+        </div>
+      )}
 
       <MonitorApprovalBanner />
       <MessageBanner />
