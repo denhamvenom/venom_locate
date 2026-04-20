@@ -11,7 +11,7 @@ import styles from './AppShell.module.css'
 
 export default function AppShell() {
   const navigate = useNavigate()
-  const { studentId, studentName, role, isMonitor, clearStudent, swUpdateReady, applyUpdate, installPrompt, triggerInstall } = useApp()
+  const { studentId, studentName, role, isMonitor, isAdmin, clearStudent, swUpdateReady, applyUpdate, installPrompt, triggerInstall } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const { permission, requestPermission } = useFcmToken(studentId, role)
@@ -48,9 +48,11 @@ export default function AppShell() {
                 Install App
               </button>
             )}
-            <button className={styles.menuItem} onClick={() => { setMenuOpen(false); navigate('/admin') }}>
-              Admin
-            </button>
+            {isAdmin && (
+              <button className={styles.menuItem} onClick={() => { setMenuOpen(false); navigate('/admin') }}>
+                Admin
+              </button>
+            )}
             <button className={styles.menuItem} onClick={handleSignOut}>
               Sign out
             </button>

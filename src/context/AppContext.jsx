@@ -28,14 +28,14 @@ export function AppProvider({ children }) {
       studentId: saved.studentId ?? '',
       role: saved.role ?? '',
       isMonitor: saved.isMonitor ?? false,
-      isAdmin: false,
+      isAdmin: saved.isAdmin ?? false,
     }
   })
 
   useEffect(() => {
-    const { studentName, studentId, role, isMonitor } = state
-    saveState({ studentName, studentId, role, isMonitor })
-  }, [state.studentName, state.studentId, state.role, state.isMonitor])
+    const { studentName, studentId, role, isMonitor, isAdmin } = state
+    saveState({ studentName, studentId, role, isMonitor, isAdmin })
+  }, [state.studentName, state.studentId, state.role, state.isMonitor, state.isAdmin])
 
   const setIdentity = useCallback((person) => {
     setState(prev => ({
@@ -44,6 +44,7 @@ export function AppProvider({ children }) {
       studentId: person.id,
       role: person.role,
       isMonitor: !!person.isMonitor,
+      isAdmin: !!person.isAdmin,
     }))
   }, [])
 
@@ -56,10 +57,6 @@ export function AppProvider({ children }) {
       isMonitor: false,
       isAdmin: false,
     }))
-  }, [])
-
-  const setAdmin = useCallback((isAdmin) => {
-    setState(prev => ({ ...prev, isAdmin }))
   }, [])
 
   // PWA install prompt capture
@@ -94,7 +91,6 @@ export function AppProvider({ children }) {
       ...state,
       setIdentity,
       clearStudent,
-      setAdmin,
       installPrompt,
       triggerInstall,
       swUpdateReady,

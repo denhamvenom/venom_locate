@@ -17,7 +17,8 @@ function parseRoster() {
     const last = (cols[1] || '').trim()
     const role = (cols[2] || '').trim().toLowerCase()
     const isMonitor = (cols[3] || '').trim().toUpperCase() === 'TRUE'
-    const enabled = (cols[4] || '').trim().toUpperCase()
+    const isAdmin = (cols[4] || '').trim().toUpperCase() === 'TRUE'
+    const enabled = (cols[5] || '').trim().toUpperCase()
 
     if (!first || !last) continue
     if (role !== 'student' && role !== 'mentor') continue
@@ -30,6 +31,7 @@ function parseRoster() {
       id: slugify(display),
       role,
       isMonitor: role === 'mentor' && isMonitor,
+      isAdmin,
     })
   }
 

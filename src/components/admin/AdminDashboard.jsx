@@ -24,6 +24,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState('move')
   const [busy, setBusy] = useState(false)
   const [showReset, setShowReset] = useState(false)
+  const [showFactoryReset, setShowFactoryReset] = useState(false)
 
   // Move state
   const [movePerson, setMovePerson] = useState('')
@@ -125,7 +126,7 @@ export default function AdminDashboard() {
     finally { setBusy(false) }
   }
 
-  // ── Reset event ──
+  // ── Reset event data only ──
   async function handleReset() {
     setBusy(true)
     setShowReset(false)
@@ -142,6 +143,46 @@ export default function AdminDashboard() {
 
       showToast('All location data, groups, and messages cleared', 'success')
     } catch (err) { console.error(err); showToast('Reset failed', 'error') }
+    finally { setBusy(false) }
+  }
+
+  // ── Factory reset (everything except mentor PIN) ──
+  async function handleFactoryReset() {
+    setBusy(true)
+    setShowFactoryReset(false)
+    try {
+      const collections = ['locations', 'groups', 'messages', 'pins', 'fcmTokens', 'emergencies']
+      for (const name of collections) {
+        const snap = await getDocs(collection(db, 'events', EVENT_CODE, name))
+        if (!snap.empty) {
+          const batch = writeBatch(db)
+          snap.docs.forEach(d => batch.delete(d.ref))
+          await batch.commit()
+        }
+      }
+
+      // Clear config docs (emergency toggle etc)
+      const cfgSnap = await getDocs(collection(db, 'events', EVENT_CODE, 'config'))
+      if (!cfgSnap.empty) {
+        const batch = writeBatch(db)
+        cfgSnap.docs.forEach(d => batch.delete(d.ref))
+        await batch.commit()
+      }
+
+      // Clear locationHistory subcollections per roster member
+      let historyDeleted = 0
+      for (const member of ROSTER) {
+        const histSnap = await getDocs(collection(db, 'events', EVENT_CODE, 'locationHistory', member.id, 'entries'))
+        if (!histSnap.empty) {
+          const batch = writeBatch(db)
+          histSnap.docs.forEach(d => batch.delete(d.ref))
+          await batch.commit()
+          historyDeleted += histSnap.docs.length
+        }
+      }
+
+      showToast(`Factory reset complete (${historyDeleted} history entries cleared)`, 'success', 4000)
+    } catch (err) { console.error(err); showToast('Factory reset failed', 'error') }
     finally { setBusy(false) }
   }
 
@@ -414,6 +455,21 @@ export default function AdminDashboard() {
               Reset All Data
             </button>
           </section>
+
+          <div className="divider" />
+
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>Factory reset (everything)</h3>
+            <p className={styles.warning}>
+              <strong>NUCLEAR OPTION.</strong> Wipes everything: locations, groups, messages,
+              location history, FCM tokens, all PINs, emergencies, and all config.
+              The mentor team PIN (8808) is unaffected. Roster (CSV) is unaffected.
+              Everyone will be treated as first-time on next login.
+            </p>
+            <button className="btn-danger" onClick={() => setShowFactoryReset(true)} disabled={busy}>
+              Factory Reset
+            </button>
+          </section>
         </div>
       )}
 
@@ -425,6 +481,18 @@ export default function AdminDashboard() {
           danger
           onConfirm={handleReset}
           onCancel={() => setShowReset(false)}
+        />
+      )}
+
+      {showFactoryReset && (
+        <ConfirmModal
+          title="Factory reset?"
+          message="This wipes EVERYTHING (locations, groups, messages, history, PINs, FCM tokens, emergencies, config) back to a fresh-install state. Type RESET to confirm. Cannot be undone."
+          confirmLabel="Factory Reset Now"
+          danger
+          requireTyping="RESET"
+          onConfirm={handleFactoryReset}
+          onCancel={() => setShowFactoryReset(false)}
         />
       )}
 
