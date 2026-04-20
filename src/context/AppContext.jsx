@@ -82,8 +82,17 @@ export function AppProvider({ children }) {
     return () => window.removeEventListener('sw-update-ready', handler)
   }, [])
 
-  const applyUpdate = useCallback(() => {
-    if (window.__updateSW) window.__updateSW(true)
+  const applyUpdate = useCallback(async () => {
+    // Manually post SKIP_WAITING to the waiting SW + force reload.
+    // Bypasses vite-plugin-pwa's controllerchange-based flow which can fail
+    // silently on iOS PWAs.
+    try {
+      const reg = await navigator.serviceWorker.getRegistration()
+      if (reg?.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+      }
+    } catch {}
+    setTimeout(() => window.location.reload(), 600)
   }, [])
 
   return (
