@@ -40,6 +40,13 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, requireO
     })
   }
 
+  function openAndScroll(id) {
+    const el = document.getElementById(id)
+    if (!el) return
+    if (el.tagName === 'DETAILS') el.open = true
+    el.scrollIntoView({ behavior: 'smooth' })
+  }
+
   function renderRow(person) {
     const checked = selectedIds.has(person.id)
     return (
@@ -92,23 +99,27 @@ export default function BuddyPicker({ location, selfId, requireMin = 0, requireO
         />
 
         <div className={styles.jumpRow}>
-          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-students')?.scrollIntoView({ behavior: 'smooth' })}>Students</button>
-          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-mentors')?.scrollIntoView({ behavior: 'smooth' })}>Mentors</button>
-          <button type="button" className={styles.jumpChip} onClick={() => document.getElementById('bp-other')?.scrollIntoView({ behavior: 'smooth' })}>Other</button>
+          <button type="button" className={styles.jumpChip} onClick={() => openAndScroll('bp-students')}>Students</button>
+          <button type="button" className={styles.jumpChip} onClick={() => openAndScroll('bp-mentors')}>Mentors</button>
+          <button type="button" className={styles.jumpChip} onClick={() => openAndScroll('bp-other')}>Other</button>
         </div>
 
         <div className={styles.list}>
           {filtered.students.length > 0 && (
-            <>
-              <div id="bp-students" className={styles.section}>Students</div>
+            <details id="bp-students" className={styles.group} open={!!query || filtered.students.length <= 8}>
+              <summary className={styles.section}>
+                Students <span className={styles.sectionCount}>{filtered.students.length}</span>
+              </summary>
               {filtered.students.map(renderRow)}
-            </>
+            </details>
           )}
           {filtered.mentors.length > 0 && (
-            <>
-              <div id="bp-mentors" className={styles.section}>Mentors</div>
+            <details id="bp-mentors" className={styles.group} open={!!query}>
+              <summary className={styles.section}>
+                Mentors <span className={styles.sectionCount}>{filtered.mentors.length}</span>
+              </summary>
               {filtered.mentors.map(renderRow)}
-            </>
+            </details>
           )}
 
           <div id="bp-other" className={styles.section}>Off-roster</div>

@@ -48,8 +48,10 @@ export default function RosterPicker({ value, onChange, onClose }) {
             <p className={styles.empty}>No matches for "{query}"</p>
           )}
           {filtered.students.length > 0 && (
-            <>
-              <div className={styles.section}>Students</div>
+            <details className={styles.group} open={!!query || filtered.students.length <= 8}>
+              <summary className={styles.section}>
+                Students <span className={styles.sectionCount}>{filtered.students.length}</span>
+              </summary>
               {filtered.students.map(s => (
                 <button
                   key={s.key}
@@ -60,11 +62,13 @@ export default function RosterPicker({ value, onChange, onClose }) {
                   <span>{s.display}</span>
                 </button>
               ))}
-            </>
+            </details>
           )}
           {filtered.mentors.length > 0 && (
-            <>
-              <div className={styles.section}>Mentors</div>
+            <details className={styles.group} open={!!query}>
+              <summary className={styles.section}>
+                Mentors <span className={styles.sectionCount}>{filtered.mentors.length}</span>
+              </summary>
               {filtered.mentors.map(s => (
                 <button
                   key={s.key}
@@ -78,7 +82,7 @@ export default function RosterPicker({ value, onChange, onClose }) {
                   </span>
                 </button>
               ))}
-            </>
+            </details>
           )}
         </div>
       </div>
