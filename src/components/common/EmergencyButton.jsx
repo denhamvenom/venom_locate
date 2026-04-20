@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
 import { EVENT_CODE } from '../../lib/constants'
-import { createEmergency, subscribeEmergencyConfig } from '../../lib/emergencies'
+import { createEmergency, subscribeEmergencyConfig, captureGpsBestEffort } from '../../lib/emergencies'
 import { useApp } from '../../context/AppContext'
 import { useToast } from './Toast'
 import EmergencyTriggerModal from './EmergencyTriggerModal'
@@ -31,10 +31,13 @@ export default function EmergencyButton() {
   async function handleSubmit({ type, comment }) {
     setBusy(true)
     try {
+      // Best-effort GPS capture in parallel — won't block submit if denied/timed-out
+      const gps = await captureGpsBestEffort(5000)
       await createEmergency({
         studentId, studentName, role,
         type, comment,
         location: myLocation,
+        gps,
       })
       showToast('Emergency sent — mentors notified', 'success', 3000)
       setOpen(false)

@@ -61,6 +61,16 @@ export default function EmergencyBanner() {
               </div>
             )}
             <div className={styles.actions}>
+              {isMentor && em.gps && (
+                <a
+                  className={styles.btnMap}
+                  href={`https://maps.google.com/?q=${em.gps.lat},${em.gps.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  📍 Open in Maps
+                </a>
+              )}
               {isMentor && !alreadyAcked && (
                 <button
                   className={styles.btnAck}

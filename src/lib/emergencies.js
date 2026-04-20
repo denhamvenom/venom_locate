@@ -8,7 +8,7 @@ import { EVENT_CODE } from './constants'
 const emergenciesRef = () => collection(db, 'events', EVENT_CODE, 'emergencies')
 const configRef = () => doc(db, 'events', EVENT_CODE, 'config', 'emergency')
 
-export async function createEmergency({ studentId, studentName, role, type, comment, location }) {
+export async function createEmergency({ studentId, studentName, role, type, comment, location, gps }) {
   if (!studentId || !type || !comment?.trim()) {
     throw new Error('createEmergency requires studentId, type, and comment')
   }
@@ -19,6 +19,7 @@ export async function createEmergency({ studentId, studentName, role, type, comm
     type,
     comment: comment.trim(),
     location: location || null,
+    gps: gps || null,
     status: 'active',
     createdAt: serverTimestamp(),
     acknowledgedBy: {},
@@ -26,6 +27,32 @@ export async function createEmergency({ studentId, studentName, role, type, comm
     resolvedById: null,
     resolvedReason: null,
     resolvedAt: null,
+  })
+}
+
+// Best-effort GPS capture. Resolves to { lat, lng, accuracy } or null on
+// denial/timeout/error. Never throws — emergency send must not be blocked.
+export function captureGpsBestEffort(timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      resolve(null); return
+    }
+    let done = false
+    const finish = (val) => { if (!done) { done = true; resolve(val) } }
+    const timer = setTimeout(() => finish(null), timeoutMs)
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        clearTimeout(timer)
+        finish({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+        })
+      },
+      () => { clearTimeout(timer); finish(null) },
+      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 30_000 }
+    )
   })
 }
 

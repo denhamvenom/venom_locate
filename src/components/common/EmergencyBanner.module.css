@@ -58,6 +58,18 @@
   margin-top: 4px;
 }
 
+.btnMap {
+  padding: 8px 16px;
+  background: var(--color-blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
 .btnAck {
   padding: 8px 16px;
   background: var(--color-success);
