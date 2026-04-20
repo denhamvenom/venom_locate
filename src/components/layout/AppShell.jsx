@@ -1,20 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate, NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useFcmToken } from '../../hooks/useFcmToken'
+import { subscribeAppLock, isUserLocked } from '../../lib/appLock'
 import MonitorApprovalBanner from '../common/MonitorApprovalBanner'
 import MessageBanner from '../common/MessageBanner'
 import OfflineBanner from '../common/OfflineBanner'
 import EmergencyButton from '../common/EmergencyButton'
 import EmergencyBanner from '../common/EmergencyBanner'
+import AppLockedScreen from './AppLockedScreen'
 import styles from './AppShell.module.css'
 
 export default function AppShell() {
   const navigate = useNavigate()
   const { studentId, studentName, role, isMonitor, isAdmin, clearStudent, swUpdateReady, applyUpdate, installPrompt, triggerInstall } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [lockState, setLockState] = useState({ studentsLocked: false, mentorsLocked: false })
+
+  useEffect(() => subscribeAppLock(setLockState), [])
 
   const { permission, requestPermission } = useFcmToken(studentId, role)
+  const locked = isUserLocked(lockState, role, isAdmin)
 
   function handleSignOut() {
     setMenuOpen(false)
@@ -69,14 +75,15 @@ export default function AppShell() {
 
       <OfflineBanner />
       <EmergencyBanner />
-      <MonitorApprovalBanner />
-      <MessageBanner />
+      {!locked && <MonitorApprovalBanner />}
+      {!locked && <MessageBanner />}
 
       <main className={styles.main}>
-        <Outlet />
+        {locked ? <AppLockedScreen /> : <Outlet />}
       </main>
 
-      <nav className={styles.bottomNav}>
+      {!locked && (
+        <nav className={styles.bottomNav}>
         <NavLink to="/me" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
           <span className={styles.tabIcon}>📍</span>
           <span>Me</span>
@@ -91,7 +98,8 @@ export default function AppShell() {
             <span>Messages</span>
           </NavLink>
         )}
-      </nav>
+        </nav>
+      )}
     </div>
   )
 }

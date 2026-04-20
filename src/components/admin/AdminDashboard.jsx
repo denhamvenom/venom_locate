@@ -10,6 +10,7 @@ import { sendMessage, subscribeRecentMessages, isMessageForMe } from '../../lib/
 import { relativeTime, toDate } from '../../lib/time'
 import { deletePin, deleteAllPins } from '../../lib/pins'
 import { subscribeEmergencyConfig, setEmergencyEnabled } from '../../lib/emergencies'
+import { subscribeAppLock, setAppLock } from '../../lib/appLock'
 import { useApp } from '../../context/AppContext'
 import { useToast } from '../common/Toast'
 import TargetPicker from '../common/TargetPicker'
@@ -39,6 +40,9 @@ export default function AdminDashboard() {
   // Emergency config
   const [emergencyEnabled, setEmergencyEnabledState] = useState(true)
 
+  // App lock state
+  const [lockState, setLockState] = useState({ studentsLocked: false, mentorsLocked: false })
+
   // Message state
   const [msgBody, setMsgBody] = useState('')
   const [msgKind, setMsgKind] = useState('info')
@@ -55,6 +59,18 @@ export default function AdminDashboard() {
   useEffect(() => subscribeAllGroups(setGroups), [])
   useEffect(() => subscribeRecentMessages(setSentMessages), [])
   useEffect(() => subscribeEmergencyConfig((cfg) => setEmergencyEnabledState(cfg.enabled !== false)), [])
+  useEffect(() => subscribeAppLock(setLockState), [])
+
+  async function toggleAppLock(field) {
+    setBusy(true)
+    try {
+      const next = { ...lockState, [field]: !lockState[field] }
+      await setAppLock(next)
+      const who = field === 'studentsLocked' ? 'Students' : 'Mentors'
+      showToast(`${who} ${next[field] ? 'locked OUT' : 'unlocked'}`, 'success')
+    } catch (err) { console.error(err); showToast('Failed', 'error') }
+    finally { setBusy(false) }
+  }
 
   const activeGroups = Object.values(groups).filter(g => (g.confirmedMembers || []).length > 1)
 
@@ -360,6 +376,34 @@ export default function AdminDashboard() {
             >
               {emergencyEnabled ? 'Turn OFF Emergency Reporting' : 'Turn ON Emergency Reporting'}
             </button>
+          </section>
+
+          <div className="divider" />
+
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>App lock</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+              Locked users can sign in but see a "App Locked" screen instead of the app.
+              Admins always retain full access. Emergency button stays available even when locked.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                className={lockState.studentsLocked ? 'btn-primary' : 'btn-danger'}
+                style={{ flex: 1 }}
+                disabled={busy}
+                onClick={() => toggleAppLock('studentsLocked')}
+              >
+                {lockState.studentsLocked ? 'Unlock Students' : 'Lock Students'}
+              </button>
+              <button
+                className={lockState.mentorsLocked ? 'btn-primary' : 'btn-danger'}
+                style={{ flex: 1 }}
+                disabled={busy}
+                onClick={() => toggleAppLock('mentorsLocked')}
+              >
+                {lockState.mentorsLocked ? 'Unlock Mentors' : 'Lock Mentors'}
+              </button>
+            </div>
           </section>
 
           <div className="divider" />
